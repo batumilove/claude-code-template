@@ -103,6 +103,22 @@ npm run deploy
 # Commands or steps to fix
 ```
 
+### Issue: jq "unexpected token" error
+**Symptoms**: When using jq with shell commands, you get "parse error: Invalid numeric literal at line 1, column 6"
+**Common Mistake**:
+```bash
+# INCORRECT - causes error
+.jobs[] < /dev/null | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion, status: .status}
+```
+**Solution**: Never place shell input redirection (`< /dev/null`) inside a jq expression. If you need to provide empty input to jq, place it after the entire jq command:
+```bash
+# CORRECT
+.jobs[] | select(.conclusion == "failure") | {name: .name, conclusion: .conclusion, status: .status}
+
+# Or if you need empty input:
+jq '.jobs[] | select(.conclusion == "failure")' < /dev/null
+```
+
 ## Project-Specific Patterns
 
 ### API Endpoints
